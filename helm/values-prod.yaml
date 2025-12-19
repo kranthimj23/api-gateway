@@ -1,0 +1,59 @@
+replicaCount: 3
+
+image:
+  tag: "latest"
+
+service:
+  type: LoadBalancer
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "prod"
+  - name: SERVER_PORT
+    value: "8080"
+
+configMap:
+  data:
+    AUTH_SERVICE_URL: "http://auth-service:8081"
+    USER_SERVICE_URL: "http://user-service:8082"
+    REDIS_HOST: "redis"
+    REDIS_PORT: "6379"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api.mobilebanking.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: api-gateway-tls
+      hosts:
+        - api.mobilebanking.com
+
+networkPolicy:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2

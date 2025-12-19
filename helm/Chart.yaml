@@ -1,0 +1,15 @@
+apiVersion: v2
+name: api-gateway
+description: API Gateway for Mobile Banking Application
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - api-gateway
+  - routing
+  - rate-limiting
+  - mobile-banking
+maintainers:
+  - name: Mobile Banking Team
+    email: support@mobilebanking.com
+dependencies: []

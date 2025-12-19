@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  tag: "dev"
+
+service:
+  type: NodePort
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "dev"
+  - name: SERVER_PORT
+    value: "8080"
+
+configMap:
+  data:
+    AUTH_SERVICE_URL: "http://auth-service-dev:8081"
+    USER_SERVICE_URL: "http://user-service-dev:8082"
+    REDIS_HOST: "redis-dev"
+    REDIS_PORT: "6379"
+
+ingress:
+  enabled: false
+
+networkPolicy:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+livenessProbe:
+  initialDelaySeconds: 30
+
+readinessProbe:
+  initialDelaySeconds: 15

@@ -1,0 +1,56 @@
+replicaCount: 2
+
+image:
+  tag: "staging"
+
+service:
+  type: LoadBalancer
+
+resources:
+  limits:
+    cpu: 750m
+    memory: 768Mi
+  requests:
+    cpu: 200m
+    memory: 384Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "staging"
+  - name: SERVER_PORT
+    value: "8080"
+
+configMap:
+  data:
+    AUTH_SERVICE_URL: "http://auth-service-staging:8081"
+    USER_SERVICE_URL: "http://user-service-staging:8082"
+    REDIS_HOST: "redis-staging"
+    REDIS_PORT: "6379"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api-staging.mobilebanking.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: api-gateway-staging-tls
+      hosts:
+        - api-staging.mobilebanking.com
+
+networkPolicy:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
