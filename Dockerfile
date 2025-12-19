@@ -2,26 +2,21 @@
 # Multi-stage build for optimized production image
 
 # Stage 1: Build
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY mvnw .
-COPY .mvn .mvn
+# Copy pom.xml first for dependency caching
 COPY pom.xml .
 
-# Make mvnw executable
-RUN chmod +x mvnw
-
 # Download dependencies (cached layer)
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B
 
 # Extract layers for better caching
 RUN java -Djarmode=layertools -jar target/*.jar extract
